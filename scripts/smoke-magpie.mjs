@@ -7,6 +7,7 @@ import assert from 'node:assert/strict';
 import { parse } from 'yaml';
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dsbot-magpie-smoke-'));
 const executable = process.env.MAGPIE_EXE || path.join(os.homedir(), 'Desktop', 'magpie-windows-amd64.exe');
+const spec = process.env.MAGPIE_PLUGIN_SPEC || process.cwd();
 const env = { ...process.env, HOME: root, USERPROFILE: root, XDG_CONFIG_HOME: path.join(root, '.config'), XDG_CACHE_HOME: path.join(root, '.cache'), APPDATA: path.join(root, 'AppData', 'Roaming'), LOCALAPPDATA: path.join(root, 'AppData', 'Local'), DSH_HOME: '', MAGPIE_ADDR: '127.0.0.1:1', DS_BOT_HOME: path.join(root, 'bot-data') };
 const run = args => execFileSync(executable, args, { env, windowsHide: true, timeout: 120000, encoding: 'utf8' });
 const cli = action => execFileSync(process.execPath, ['cli.js', action], { env, windowsHide: true, timeout: 20000, encoding: 'utf8' });
@@ -16,7 +17,7 @@ fs.writeFileSync(path.join(config, 'providers.json'), JSON.stringify({ providers
 const profile = path.join(env.DS_BOT_HOME, 'profiles', 'ds-bot', 'cordis.patch.yml');
 fs.mkdirSync(path.dirname(profile), { recursive: true });
 fs.writeFileSync(profile, '- id: user-row\n  config: {keep: true}\n');
-run(['plugin', 'add', process.cwd()]);
+run(['plugin', 'add', spec]);
 run(['deepseekbot', 'provider', 'magpie']);
 const connected = JSON.parse(cli('sync'));
 assert.equal(connected.status, 'connected');
@@ -25,6 +26,6 @@ assert(parse(fs.readFileSync(profile, 'utf8')).some(row => row.id === 'llm-pi-ai
 run(['deepseekbot', 'default']);
 assert.equal(JSON.parse(cli('sync')).status, 'disconnected');
 assert.deepEqual(parse(fs.readFileSync(profile, 'utf8')), [{ id: 'user-row', config: { keep: true } }]);
-run(['plugin', 'rm', process.cwd()]);
+run(['plugin', 'rm', spec]);
 assert.equal(fs.existsSync(path.join(root, '.dsh', 'profiles')), false);
 console.log(JSON.stringify({ status: 'passed', directory: root, models: connected.models, lifecycle: 'install-connect-sync-disconnect-remove', nativeDSHRequired: false }, null, 2));

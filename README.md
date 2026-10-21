@@ -1,140 +1,123 @@
-# Magpie → DeepSeek Bot
+# Magpie for DeepSeek Bot
 
-**第三方适配插件，由 KirishimaRin 开发，与 DS Bot 作者及 DeepSeek 官方无隶属或背书关系。**
+让 **DeepSeek Bot 使用 Magpie 中已配置的供应商模型和路由组**，同步模型能力与思考强度选项。
 
-插件卡片和 Agent 列表使用 DS Bot v0.2.0 原始应用图标，用于标识接入对象。图标版权归 **Fei2411 及 DS Bot 贡献者**所有，按 **Apache License 2.0** 使用；图标图形未作修改。来源为 [DS Bot 图标生成代码](https://github.com/Fei2411/DeepSeek-Bot/blob/v0.2.0/app/scripts/icon.mjs)。许可证全文和相关署名随包附于 `licenses/`。本插件自有代码采用 MIT，图标保留上游许可。
+插件读取每位用户自己的 Magpie 模型目录，模型变化后持续同步。无需修改 DeepSeek Bot 安装文件。
 
-把 Magpie 的模型接入 **DeepSeek Bot 独立桌面版 v0.2.0**（内置 DSH 0.2.1-rc.2）。
+## 功能
 
-请求路径：**DeepSeek Bot → Magpie 网关 → Magpie 已配置的模型供应商**。
+- **同步模型**：在 DeepSeek Bot 内选择 Magpie 的模型，保留模型显示名称。
+- **支持路由组**：同步可见路由组，实际请求仍交由 Magpie 执行路由。
+- **同步模型能力**：同步上下文、输出预算、图片输入和思考档位。
+- **自动选择协议**：识别 Chat、Responses、Anthropic 接口，支持手动覆盖。
+- **便于恢复**：保留原有供应商与 Bot 设置，提供诊断、断开清理和升级兼容入口。
 
-插件在 Magpie 的 Agents 页增加 **DeepSeek Bot** 开关。接入后同步可见模型、上下文、输出预算、图片输入和思考档位，独立计算 Chat、Responses、Anthropic 分组。只需 Magpie 和独立 DS Bot；每个 Bot 仍在自己的设置里选择模型。
+## 使用要求
 
-当前版本：`0.3.0-preview.2`。适配规则以 Magpie `0.1.1307` / 源码 `f5b0157420` 为基准。
+| 项目 | 要求 |
+| --- | --- |
+| 系统 | Windows |
+| Magpie | 已配置可用模型；已测试 0.1.1307 |
+| DeepSeek Bot | 已测试独立桌面版 v0.2.0，内置 DeepSeek Harness 0.2.1-rc.2 |
+| 首次初始化 | 在 DeepSeek Bot 中完成数据位置设置 |
+| 运行环境 | 正常使用由 Magpie 提供 Bun；开发测试和手动诊断使用 Node.js 22+ |
 
 ## 安装
 
-1. 先安装并打开一次 DeepSeek Bot，完成数据位置设置。
-2. 在 Magpie 的插件页添加本插件文件夹，例如 `C:\Plugins\magpie-agent-deepseekbot`，并启用。Magpie 会安装 `yaml` 依赖。
-3. 到 Magpie 的 Agents 页，开启 **DeepSeek Bot** 接入。
-4. 等待约 3 秒，在 DeepSeek Bot 的 Bot 设置中选择 **Magpie · DS Bot** 下的模型。首次接入时如列表未刷新，退出并重开 DeepSeek Bot。
+在 **插件 → 发现 → 非官方插件 · GitHub → Agent** 中搜索 `deepseek`，选择作者 KirishimaRin 的 `magpie-agent-deepseek_bot`。列表尚未刷新时，也可使用下面的地址安装。
 
-本项目也提供 `node scripts/install-local.mjs`，会安装插件、开启接入并立即同步。默认查找 Windows 桌面上的 `magpie-windows-amd64.exe`，其他位置可通过 `MAGPIE_EXE` 指定。
+在 **Magpie → 插件 → 添加插件** 中输入：
 
-也可以使用 Magpie 命令行：
-
-```powershell
-magpie plugin add "C:\Plugins\magpie-agent-deepseekbot"
-magpie deepseekbot provider magpie
+```text
+github:KirishimaRin/magpie-agent-deepseek_bot#main
 ```
 
-已有 Bot 的模型选择保持原样，需要在 Bot 设置里选择要使用的 Magpie 模型。
-
-## 数据位置
-
-按以下顺序查找 DeepSeek Bot 数据：
-
-1. 插件选项 `dataDir`。
-2. `DS_BOT_HOME` 环境变量。
-3. 桌面应用的 `locations.json` 中的 `dataDir`（支持首次启动时选择的自定义位置）。
-4. 默认 `~/.ds-bot`。
-
-Windows 的位置记录为 `%APPDATA%\DeepSeek Bot\locations.json`；macOS 为 `~/Library/Application Support/DeepSeek Bot/locations.json`。可用 `shellData` 选项或 `DS_BOT_SHELL_DATA` 指定自定义应用设置目录。
-
-插件只管理这份数据的 `profiles/ds-bot/cordis.patch.yml`；家目录 `cordis.patch.yml` 已有 `llm-pi-ai.config` 覆盖时也合并同一组路由。网关凭据保存到该数据目录的 `.credentials.yaml`，引用名为 `MAGPIE_DSBOT_GATEWAY_KEY`。
-
-普通 DSH 的 `~/.dsh`、Bot/群聊数据、会话与默认模型都保持原样。插件占用 `magpie-dsbot`、`magpie-dsbot-responses`、`magpie-dsbot-anthropic` 三个供应商 ID。首次接入发现同名配置时会报告冲突。
-
-## 检查、同步与断开
-
-在本插件目录运行（本地开发先执行 `npm ci`）：
+也可以通过命令行安装：
 
 ```powershell
-npm run check
-npm run explain
-npm run sync
+magpie plugin add github:KirishimaRin/magpie-agent-deepseek_bot#main
 ```
 
-正常断开：在 Magpie Agents 页关闭 **DeepSeek Bot**。同步器会清理专用供应商及其凭据。请在移除插件前先断开；若已停用同步器，可运行：
+## 开始使用
 
-```powershell
-npm run restore
-```
+1. 在 Magpie 插件页启用本插件。
+2. 在 **Magpie → Agent** 找到 **DeepSeek Bot**，开启接入。
+3. 等待约 3 秒，让插件同步模型配置。
+4. 在 DeepSeek Bot 的 Bot 设置中选择同步的 Magpie 模型。
+5. 首次接入后如模型列表没有刷新，退出并重新打开 DeepSeek Bot。
 
-`restore` 使用记录中的原数据路径，适用于应用刚迁移数据目录的情况。若 Agents 开关仍开启，先关闭再 restore，避免随后再次接入。
+插件每 3 秒检查接入状态与模型目录，每分钟刷新一次网关模型元数据。每个 Bot 在自己的设置里选择模型；已有的选择保持原样，需手动切换到要使用的 Magpie 模型。模型换协议后，请重新选择对应接口下的模型。
 
-插件的桥接文件和清理记录位于 `~/.config/magpie-deepseekbot/`。清理记录保存管理路径和密钥摘要，不保存对话。
+## 模型能力与协议如何工作
 
-## 协议与兼容选项
+插件使用 Magpie 提供的上下文、输出上限、图片输入和思考档位，交给 DeepSeek Bot 内置适配器使用。实际请求沿 **DeepSeek Bot → Magpie 网关 → 模型供应商或路由组** 转发。
 
-Magpie 当前 Agent 插件接口未传入原生协议。插件独立构建模型到协议的映射：
+协议按 **用户手动覆盖 → 网关模型元数据与本机 Magpie 配置 → Chat 默认回退** 确定。普通模型匹配原生接口；路由组的全部有效成员使用 Responses 时归入 Responses，其余归入 Chat。识别依据与回退原因可通过诊断查看。
 
-1. 每分钟向接入的 Magpie 网关读取一次 `/v1/models`，使用 `native_endpoints` 获取普通模型的原生接口。请求超时 5 秒；失败退避 30 秒，保留最近成功结果最多 5 分钟。
-2. 对本机回环网关，读取 Magpie 的 `providers.json`、`settings.json`、`plugin-providers.json`、模型目录缓存，以及界面的供应商状态缓存。解析用户指定协议、供应商端点、每个模型的 SDK 和路由组成员。
-3. 普通模型遵循 Magpie 的 Native 选择规则；路由组全部有效成员走 Responses 时归入 Responses，其余归入 Chat。支持嵌套组、循环检测、自动组名称归并和缓存成员关系。动态匹配组缺少展开结果时，诊断显示默认回退。
-4. 未取得充分协议信息的模型临时走 Chat，`npm run explain` 显示具体原因。远程网关只使用该网关返回的元数据，不套用本机供应商配置；缺少远程组成员时显示回退。
+模型按 Chat、Responses、Anthropic 分组。输出预算取供应商输出上限与上下文四分之一中的较小值，为历史消息和压缩留出空间。详细规则和覆盖示例见[配置指南](docs/CONFIGURATION.md#协议与兼容选项)。
 
-这些步骤不读取普通 DSH 的配置。旧的 `dshHome` 选项已移除。Magpie 默认配置和缓存目录分别为 `~/.config/magpie`、`~/.cache/magpie`，遵循 `XDG_CONFIG_HOME` / `XDG_CACHE_HOME`；便携版或其他目录请设置插件选项 `magpieConfigDir` 和 `magpieCacheDir`。
+## 常见问题
 
-命令行工具会读取已安装插件的相同选项。便携版也可使用 `node cli.js status --options C:\path\options.json`；`sync`、`explain`、`restore`、`prune` 同样接受 `--options`。诊断为只读，`sync` 更新配置，`restore` 断开清理，`prune` 只清理升级兼容入口。
+### DeepSeek Bot 没出现模型，或者目录没有更新
 
-相应生成 **Magpie · DS Bot**（Chat）、**Magpie · DS Bot · Responses**、**Magpie · DS Bot · Anthropic**。普通模型只进入匹配的协议组；无模型且无升级兼容入口的组自动移除。
+先确认插件已启用，Magpie 的 DeepSeek Bot Agent 已开启接入，并且有对该插件可见的模型。升级插件后重启 Magpie，等待同步，再重新打开 DeepSeek Bot。在插件目录执行 `npm run check` 查看状态；首次运行这些命令先执行 `npm ci` 安装依赖。
 
-从旧版升级或模型换协议时，旧供应商下保留同 ID 的兼容入口，名称标注“旧接口，建议切换”。在 Bot 设置中切换到新组后，可运行 `npm run prune` 清除旧入口。此操作会使仍选择旧入口的 Bot 需要重新选模型；先根据 `npm run check` 列出的 `compatibilityAliases` 检查。清理后自动同步不会重新创建这些旧入口。插件不读取或改写会话日志来迁移选择。
+### 找不到 DeepSeek Bot 数据目录
 
-也可以用 `modelOverrides` 显式指定协议，其优先级高于自动识别。例如：
+先打开一次 DeepSeek Bot，完成数据位置设置。便携安装可在 Magpie 的插件选项中指定实际数据目录：
 
 ```json
 {
-  "modelOverrides": {
-    "my-provider/my-model": {
-      "api": "openai-responses"
-    },
-    "anthropic/my-claude": {
-      "api": "anthropic-messages",
-      "compat": { "forceAdaptiveThinking": true }
-    }
-  }
+  "dataDir": "D:/Apps/DeepSeek Bot/data"
 }
 ```
 
-这些选项在 Magpie 的插件选项中设置；同步器会自动使用正确的 Base URL。Bot 设置中选择对应供应商下的模型。切换协议后重新选择模型，因为 DSH 按供应商 ID 和模型 ID 共同定位模型。
+路径请替换为自己的数据位置。其他配置路径与环境变量见[配置指南](docs/CONFIGURATION.md)。
 
-输出预算默认为供应商输出上限与上下文四分之一中的较小值，给 DSH 的历史消息和压缩留出空间。模型在 Magpie 明确隐藏后会从插件同步列表移除。
+### 某个模型的接口或思考档位与预期不同
 
-## 验证
+模型可能缺少协议元数据或可调档位信息。执行详细诊断：
 
 ```powershell
-npm test
-node scripts/smoke-magpie.mjs
-$env:DS_BOT_EXE = 'C:\Apps\DeepSeek Bot\DeepSeek Bot.exe'
-node scripts/smoke-dsh.mjs
-node scripts/smoke-dsh.mjs --responses
-node scripts/smoke-dsh.mjs --anthropic
-node scripts/compare-dsh.mjs
+npm run explain
 ```
 
-`smoke-magpie` 用隔离目录验证真实 Magpie 的安装、接入、同步、断开和移除，目标目录中没有 DSH 安装。`smoke-dsh` 用已安装的 DeepSeek Bot 内置适配器连接本地模拟网关，验证三种协议的模型能力、思考参数和流式响应；通过 `DS_BOT_EXE`、`DS_BOT_ADAPTER` 指定安装位置。
+报告会列出协议识别依据、回退原因和模型信息。需要手动指定协议时，可查阅[覆盖示例](docs/CONFIGURATION.md#协议与兼容选项)。这些命令需要 Node.js 22+；报告可能包含本机路径与模型名称，分享前请检查内容。
 
-`compare-dsh` 仅为开发验收工具：只读本机 Magpie 已生成的 DSH 分组，与独立计算结果对照。正式插件运行不导入该脚本。
+### DeepSeek Bot 返回供应商错误
 
-## 工作区与打包
+查看 Magpie 对应的检测控制台或供应商状态，按错误提示处理账号状态、重新检测或切换模型。模型请求的供应商认证与路由由 Magpie 管理。
 
-开发需要 Node.js 22 或以上版本。克隆后执行 `npm ci` 安装锁定版本的依赖，再执行 `npm test`。
+## 更新
 
-根目录存放插件入口、包清单、图标和说明；`lib/` 为运行逻辑，`scripts/` 为开发验收与本地安装工具，`test/` 为自动化测试，`licenses/` 为上游许可和署名。
+在 Magpie 插件页应用更新，或执行：
 
-`node_modules/`、`.smoke/` 和 `release/` 分别保存依赖、临时验收文件和本地构建产物，均由 Git 忽略。实际网关密钥与用户配置保存在用户数据目录，不应复制进源码仓库。
+```powershell
+magpie plugin update
+```
 
-执行 `npm pack --dry-run` 检查分发文件；需要生成本地安装包时执行 `npm pack --pack-destination release`（先创建 `release/`）。当前版本为预览版，验收范围见 `VALIDATION.md`。
+更新后重启 Magpie，等待同步再打开 DeepSeek Bot。GitHub 分支安装会检查新提交并提示更新。
 
-实现依据：
+## 关闭、卸载与恢复
 
-- [DeepSeek Bot v0.2.0](https://github.com/Fei2411/DeepSeek-Bot/releases/tag/v0.2.0)
-- [数据位置与首次启动](https://github.com/Fei2411/DeepSeek-Bot/blob/ae63b45c0d0e75b5f59fc3042b5043761ee41391/app/src/first-run.mjs)
-- [ds-bot profile](https://github.com/Fei2411/DeepSeek-Bot/blob/ae63b45c0d0e75b5f59fc3042b5043761ee41391/app/src/profile.mjs)
-- [Magpie Agent 插件协议](https://github.com/yetone/magpie/blob/main/internal/agentplug/agentplug.go)
+- **关闭接入**：在 Agent 页关闭 DeepSeek Bot 接入，保持插件启用，等待插件管理的供应商和凭据被清理。仍使用 Magpie 模型的 Bot 需切换到其他供应商。
+- **卸载插件**：先按上述步骤清理接入，再在 Magpie 插件页删除插件。
+- **恢复清理**：如果已停用插件但仍有遗留配置，先关闭 Agent 接入，再在插件目录执行 `npm run restore`。
 
-## 隐私
+升级或模型换协议时，插件保留名称带“旧接口，建议切换”的兼容入口。先选择新接口下的模型，再执行 `npm run prune` 清除旧入口。更多操作见[配置与恢复指南](docs/CONFIGURATION.md)。
 
-同步器只读取模型协议元数据、管理 DS Bot 模型配置及专用网关凭据。新增的网络请求仅为向配置的网关读取模型列表，不发送对话。它只从 Magpie 本地文件提取协议相关字段，诊断不输出供应商密钥、账号身份或请求正文。桥接文件包含网关密钥，应按凭据文件保管。移植规则的来源与许可见 `THIRD_PARTY_NOTICES.md`。
+## 隐私与反馈
+
+供应商 API Key 由 Magpie 管理。插件使用 Magpie 网关转发模型请求，读取模型协议元数据，并在本机保存 DeepSeek Bot 专用接入凭据。元数据查询仅向配置的网关获取模型列表。
+
+遇到问题请在 [Issues](https://github.com/KirishimaRin/magpie-agent-deepseek_bot/issues) 提供版本、复现步骤及检查后的 `npm run check` 或 `npm run explain` 输出。配置文件、桥接文件、凭据和备份请留在本机。
+
+## 开发与许可
+
+[配置与兼容规则](docs/CONFIGURATION.md) · [开发与验证](docs/DEVELOPMENT.md) · [验收记录](VALIDATION.md) · [发布流程](docs/PUBLISHING.md)
+
+插件自有代码采用 [MIT License](LICENSE)。DeepSeek Bot 图标保留上游 Apache-2.0 许可；Magpie 协议规则移植保留上游 MIT 声明。各部分来源与许可证见[第三方声明](THIRD_PARTY_NOTICES.md)。
+
+**该插件是由 KirishimaRin 开发的第三方适配插件。** DeepSeek Bot 图标用于标识接入对象，版权归 Fei2411 及 DeepSeek Bot 贡献者所有，按 Apache-2.0 使用。本插件与 DeepSeek Bot 作者及 DeepSeek 官方无隶属或背书关系。[完整图标声明](docs/ICON-ATTRIBUTION.md)
+
+相关项目：[Magpie](https://github.com/yetone/magpie) · [DeepSeek Bot](https://github.com/Fei2411/DeepSeek-Bot) · [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) · [Magpie 插件开发文档](https://usemagpie.ai/docs/zh/plugins)

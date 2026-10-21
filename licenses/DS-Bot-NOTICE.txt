@@ -4,4 +4,8 @@ Copyright 2026 Fei2411 and the DS Bot contributors
 This product is licensed under the Apache License, Version 2.0 (see LICENSE).
 
 The lines above reproduce the attribution relevant to the DS Bot icon.
-Upstream NOTICE: https://github.com/Fei2411/DeepSeek-Bot/blob/v0.2.0/NOTICE
+Upstream NOTICE: https://github.com/Fei2411/DeepSeek-Bot/blob/ae63b45c0d0e75b5f59fc3042b5043761ee41391/NOTICE
+
+Used unmodified in icon.svg, package.json (magpie.icon), and agent.js (agent.icon).
+This independent integration is developed by KirishimaRin.
+Full attribution and icon usage details: docs/ICON-ATTRIBUTION.md

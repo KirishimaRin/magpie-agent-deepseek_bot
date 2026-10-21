@@ -1,7 +1,7 @@
 {
-  "name": "magpie-agent-deepseekbot",
+  "name": "magpie-agent-deepseek_bot",
   "version": "0.3.0-preview.2",
-  "description": "Third-party Magpie bridge for DeepSeek Bot by KirishimaRin. DS Bot icon: Fei2411 and contributors, Apache-2.0.",
+  "description": "Third-party Magpie bridge for DeepSeek Bot by KirishimaRin. DeepSeek Bot icon: Fei2411 and contributors, Apache-2.0.",
   "author": "KirishimaRin",
   "type": "module",
   "license": "MIT",
@@ -28,7 +28,8 @@
     "THIRD_PARTY_NOTICES.md",
     "VALIDATION.md",
     "icon.svg",
-    "licenses"
+    "licenses",
+    "docs"
   ],
   "magpie": {
     "agent": "./agent.js",
@@ -44,6 +45,15 @@
     "explain": "node cli.js explain",
     "sync": "node cli.js sync",
     "restore": "node cli.js restore",
-    "prune": "node cli.js prune"
+    "prune": "node cli.js prune",
+    "check:package": "node scripts/check-package.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KirishimaRin/magpie-agent-deepseek_bot.git"
+  },
+  "homepage": "https://github.com/KirishimaRin/magpie-agent-deepseek_bot#readme",
+  "bugs": {
+    "url": "https://github.com/KirishimaRin/magpie-agent-deepseek_bot/issues"
   }
 }

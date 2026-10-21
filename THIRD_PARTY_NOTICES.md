@@ -7,6 +7,11 @@
 The artwork is unmodified. Source generation code:
 https://github.com/Fei2411/DeepSeek-Bot/blob/v0.2.0/app/scripts/icon.mjs
 
+Pinned upstream revision: ae63b45c0d0e75b5f59fc3042b5043761ee41391.
+The generated whale artwork is sourced by that script from
+`ds-bot/src/client/characters.js`. Only Base64 encoding and display scaling
+are applied; the icon artwork and original SVG bytes are preserved.
+
 Copyright 2026 Fei2411 and the DS Bot contributors.
 Licensed under Apache License, Version 2.0. The complete license is included
 in `licenses/DS-Bot-Apache-2.0.txt`; relevant upstream attribution is included
@@ -15,6 +20,9 @@ in `licenses/DS-Bot-NOTICE.txt`.
 This bridge is an independent third-party integration by KirishimaRin.
 It is not affiliated with or endorsed by the DS Bot authors or DeepSeek.
 The DS Bot name and icon identify the application this plugin connects to.
+Their use follows the trademark provisions in Apache-2.0 section 6.
+See `docs/ICON-ATTRIBUTION.md` for the Chinese attribution, usage locations
+and redistribution guidance.
 
 ## Magpie protocol selection
 
