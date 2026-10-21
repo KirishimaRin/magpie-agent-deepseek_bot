@@ -1,6 +1,6 @@
 # Third-party notices
 
-## DS Bot application icon
+## DeepSeek Bot application icon
 
 `icon.svg` and the identical embedded SVG data URIs in `package.json` and
 `agent.js` use the original icon distributed with DeepSeek Bot v0.2.0.
@@ -18,8 +18,8 @@ in `licenses/DS-Bot-Apache-2.0.txt`; relevant upstream attribution is included
 in `licenses/DS-Bot-NOTICE.txt`.
 
 This bridge is an independent third-party integration by KirishimaRin.
-It is not affiliated with or endorsed by the DS Bot authors or DeepSeek.
-The DS Bot name and icon identify the application this plugin connects to.
+It is not affiliated with or endorsed by the DeepSeek Bot authors or DeepSeek.
+The DeepSeek Bot name and icon identify the application this plugin connects to.
 Their use follows the trademark provisions in Apache-2.0 section 6.
 See `docs/ICON-ATTRIBUTION.md` for the Chinese attribution, usage locations
 and redistribution guidance.
@@ -57,5 +57,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-The `yaml` dependency is licensed under ISC; its own LICENSE is included in
-node_modules/yaml in the offline ZIP distribution.
+The `yaml` dependency is licensed under ISC. Its copyright and license are
+provided with the dependency in `node_modules/yaml/LICENSE`.

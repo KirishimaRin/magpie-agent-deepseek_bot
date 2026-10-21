@@ -9,7 +9,7 @@
 3. 桌面应用的 `locations.json` 中的 `dataDir`（支持首次启动时选择的自定义位置）。
 4. 默认 `~/.ds-bot`。
 
-Windows 的位置记录为 `%APPDATA%\DeepSeek Bot\locations.json`；macOS 为 `~/Library/Application Support/DeepSeek Bot/locations.json`。可用 `shellData` 选项或 `DS_BOT_SHELL_DATA` 指定自定义应用设置目录。
+Windows 的位置记录为 `%APPDATA%\DeepSeek Bot\locations.json`。可用 `shellData` 选项或 `DS_BOT_SHELL_DATA` 指定自定义应用设置目录。
 
 插件只管理这份数据的 `profiles/ds-bot/cordis.patch.yml`；家目录 `cordis.patch.yml` 已有 `llm-pi-ai.config` 覆盖时也合并同一组路由。网关凭据保存到该数据目录的 `.credentials.yaml`，引用名为 `MAGPIE_DSBOT_GATEWAY_KEY`。
 
