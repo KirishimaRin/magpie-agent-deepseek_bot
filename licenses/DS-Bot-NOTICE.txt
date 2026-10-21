@@ -1,0 +1,7 @@
+DS Bot
+Copyright 2026 Fei2411 and the DS Bot contributors
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+The lines above reproduce the attribution relevant to the DS Bot icon.
+Upstream NOTICE: https://github.com/Fei2411/DeepSeek-Bot/blob/v0.2.0/NOTICE

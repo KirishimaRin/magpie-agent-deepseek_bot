@@ -1,0 +1,7 @@
+* text=auto eol=lf
+
+# Preserve upstream icon bytes, which are also embedded in both manifests.
+icon.svg -text whitespace=cr-at-eol
+*.png binary
+*.zip binary
+*.tgz binary
